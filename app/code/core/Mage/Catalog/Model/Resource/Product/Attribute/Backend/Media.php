@@ -80,7 +80,7 @@ class Mage_Catalog_Model_Resource_Product_Attribute_Backend_Media extends Mage_C
 
         $adapter = $this->_getReadAdapter();
         $result = $adapter->fetchAll($select);
-        $this->_removeDuplicates($result);
+        //$this->_removeDuplicates($result, true);
         return $result;
     }
 
@@ -90,7 +90,7 @@ class Mage_Catalog_Model_Resource_Product_Attribute_Backend_Media extends Mage_C
      * @param array $result
      * @return Mage_Catalog_Model_Resource_Product_Attribute_Backend_Media
      */
-    protected function _removeDuplicates(&$result)
+    protected function _removeDuplicates(&$result, $keepall)
     {
         $fileToId = array();
 
@@ -98,7 +98,9 @@ class Mage_Catalog_Model_Resource_Product_Attribute_Backend_Media extends Mage_C
             if (!isset($fileToId[$result[$index]['file']])) {
                 $fileToId[$result[$index]['file']] = $result[$index]['value_id'];
             } elseif ($fileToId[$result[$index]['file']] != $result[$index]['value_id']) {
-                $this->deleteGallery($result[$index]['value_id']);
+		if (!$keepall) {
+                	$this->deleteGallery($result[$index]['value_id']);
+		}
                 unset($result[$index]);
             }
         }
@@ -285,12 +287,12 @@ class Mage_Catalog_Model_Resource_Product_Attribute_Backend_Media extends Mage_C
      * @param $storeId
      * @return array
      */
-    public function loadGallerySet(array $productIds, $storeId) {
+    public function loadGallerySet(array $productIds, $storeId, $keepall=false) {
         $select = $this->_getLoadGallerySelect($productIds, $storeId, $this->_getAttributeId());
 
         $adapter = $this->_getReadAdapter();
         $result = $adapter->fetchAll($select);
-        $this->_removeDuplicates($result);
+        //$this->_removeDuplicates($result, $keepall);
         return $result;
     }
 }
